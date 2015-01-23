@@ -9,21 +9,22 @@ from docker.client import Client
 
 def process(base_url, commands):
 
-    def get_image_name():
+    def get_image_name(docker_client):
         # image_info is dict.
         # RepoTags key has ['image_name:tag', ...] value.
-        image_info = max(cli.images(), key=lambda i: i['Created'])
+        image_info = max(docker_client.images(), key=lambda i: i['Created'])
         return image_info['RepoTags'][0].split(':')[0]
 
-    cli = Client(base_url)
-    cli.import_image(src=commands['path_to_image'],
-                     repository=commands['path_to_image'])
+    docker_client = Client(base_url)
+    docker_client.import_image(src=commands['path_to_image'],
+                               repository=commands['path_to_image'])
     host_port, container_port = map(int, commands['ports'].split(':'))
-    container = cli.create_container(image=get_image_name(),
-                                     command=commands['commands'],
-                                     ports=[container_port],
-                                     detach=True)
-    cli.start(container, port_bindings={container_port: host_port})
+    container = docker_client.create_container(
+        image=get_image_name(docker_client),
+        command=commands['commands'],
+        ports=[container_port],
+        detach=True)
+    docker_client.start(container, port_bindings={container_port: host_port})
 
 
 def run():
