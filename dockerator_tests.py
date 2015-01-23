@@ -6,7 +6,7 @@ import time
 
 class DockerSingleImage(unittest.TestCase):
 
-    def test_run_single_image(self):
+    def test_run_simple_web_app(self):
 
         def run_dockerator(host, path_to_image):
             cmd = ['python', 'dockerator.py', '-s', path_to_image,
