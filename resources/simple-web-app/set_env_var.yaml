@@ -1,0 +1,4 @@
+path_to_image: resources/simple-web-app/lonely_feynman.tar
+ports: 3333:4444
+env: ["TEST_FOO=This is a test"]
+commands: /bin/bash -c 'sudo apt-get update && sudo apt-get install -y python-pip python-dev build-essential && pip install -r /home/app/requirements.txt && python /home/app/app.py 4444'

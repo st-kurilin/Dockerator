@@ -15,16 +15,28 @@ def process(base_url, commands):
         image_info = max(docker_client.images(), key=lambda i: i['Created'])
         return image_info['RepoTags'][0].split(':')[0]
 
+    def import_image(path_to_image):
+        if path_to_image:
+            docker_client.import_image(src=path_to_image,
+                                       repository=path_to_image)
+
     docker_client = Client(base_url)
-    docker_client.import_image(src=commands['path_to_image'],
-                               repository=commands['path_to_image'])
-    host_port, container_port = map(int, commands['ports'].split(':'))
+
+    import_image(commands.get('path_to_image'))
+
+    if commands.get('ports'):
+        host_port, container_port = map(int, commands.get('ports').split(':'))
+        port_bindings = {container_port: host_port}
+        ports = [container_port]
+
     container = docker_client.create_container(
         image=get_image_name(docker_client),
-        command=commands['commands'],
-        ports=[container_port],
+        command=commands.get('commands'),
+        ports=ports,
+        environment=commands.get('env'),
         detach=True)
-    docker_client.start(container, port_bindings={container_port: host_port})
+
+    docker_client.start(container, port_bindings=port_bindings)
 
 
 def run():
